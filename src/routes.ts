@@ -14,12 +14,16 @@ router.get("/api", (req: Request, res: Response) => {
 // CLIENTES  <= ADICIONE
 router.get("/clientes", ClienteController.todos);
 router.post("/clientes", ClienteController.novo);
+router.put("/clientes/:idCliente", ClienteController.atualizar);
+router.delete("/clientes/:idCliente", ClienteController.remover);
+router.get("/clientes/:idCliente", ClienteController.obter);
 
 //PRODUTOS
 router.get("/produtos", ProdutoController.todos);
 router.get("/produtos/alerta", ProdutoController.alerta);
 router.post("/produtos", ProdutoController.novo);
 router.put("/produtos/:idProduto", ProdutoController.atualizar);
+router.delete("/produtos/:idProduto", ProdutoController.remover);
 
 // ========================================================================
 // ROTAS DE PEDIDOS E ITENS DE PEDIDO
@@ -55,6 +59,7 @@ router.get("/pedidos/:id", PedidoController.obter);
 // Corpo (Body JSON): { "idCliente": 2, "dataVenda": "2025-11-03" }
 // Cria um registro na tabela pedidos.
 router.post("/pedidos", PedidoController.novo);
+router.delete("/pedidos/:id", PedidoController.remover);
 
 // ========================================================================
 // ROTAS DE ITENS DO PEDIDO

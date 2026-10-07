@@ -13,6 +13,18 @@ class PedidoController extends Pedido {
     }
   }
 
+  static async remover(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ mensagem: 'ID inválido' });
+      const ok = await Pedido.removerPedido(id);
+      return ok ? res.status(200).json({ mensagem: 'Pedido removido com sucesso.' }) : res.status(400).json({ mensagem: 'Erro ao remover pedido.' });
+    } catch (error) {
+      console.error(`Erro ao remover pedido: ${error}`);
+      return res.status(500).json({ mensagem: 'Erro ao remover pedido.' });
+    }
+  }
+
   static async obter(req: Request, res: Response): Promise<any> {
     try {
       const idVenda = Number(req.params.id);

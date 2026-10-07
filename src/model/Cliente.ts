@@ -75,4 +75,60 @@ export class Cliente {
       return false
     }
   }
+
+  static async atualizarCliente(idCliente: number, campos: Partial<{ nome: string; cpf: string }>): Promise<boolean> {
+    try {
+      const sets: string[] = [];
+      const params: any[] = [];
+      let idx = 1;
+
+      if (campos.nome !== undefined) {
+        sets.push(`nome = $${idx++}`);
+        params.push(campos.nome.toUpperCase());
+      }
+      if (campos.cpf !== undefined) {
+        sets.push(`cpf = $${idx++}`);
+        params.push(campos.cpf);
+      }
+
+      if (sets.length === 0) return false;
+
+      const query = `
+        UPDATE cliente
+           SET ${sets.join(', ')}
+         WHERE id_cliente = $${idx}
+         RETURNING id_cliente;
+      `;
+      params.push(idCliente);
+
+      const result = await database.query(query, params);
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error(`Erro ao atualizar cliente: ${error}`);
+      return false;
+    }
+  }
+
+  static async removerCliente(idCliente: number): Promise<boolean> {
+    try {
+      const query = `DELETE FROM cliente WHERE id_cliente = $1 RETURNING id_cliente;`;
+      const result = await database.query(query, [idCliente]);
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error(`Erro ao remover cliente: ${error}`);
+      return false;
+    }
+  }
+
+  static async buscarPorId(idCliente: number): Promise<{ id_cliente: number; nome: string; cpf: string } | null> {
+    try {
+      const query = `SELECT id_cliente, nome, cpf FROM cliente WHERE id_cliente = $1`;
+      const result = await database.query(query, [idCliente]);
+      if (result.rows.length === 0) return null;
+      return result.rows[0];
+    } catch (error) {
+      console.error(`Erro ao buscar cliente por id: ${error}`);
+      return null;
+    }
+  }
 } 

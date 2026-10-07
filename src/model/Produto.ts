@@ -50,7 +50,7 @@ export class Produto {
       `;
             const params = [
                 produto.descricao.toUpperCase(),
-                produto.validade,          // pode ser null
+                produto.validade,
                 produto.preco,
                 produto.qtdEstoque,
                 produto.qtdMinEstoque
@@ -64,6 +64,17 @@ export class Produto {
             return false;
         } catch (error) {
             console.error(`Erro ao cadastrar produto: ${error}`);
+            return false;
+        }
+    }
+
+    static async removerProduto(idProduto: number): Promise<boolean> {
+        try {
+            const query = `DELETE FROM produto WHERE id_produto = $1 RETURNING id_produto;`;
+            const result = await database.query(query, [idProduto]);
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error(`Erro ao remover produto: ${error}`);
             return false;
         }
     }

@@ -1,4 +1,6 @@
 import { Produto } from "../model/Produto.js";
+import { DatabaseModel } from "../model/DatabaseModel.js";
+const database = new DatabaseModel().pool;
 import type { Request, Response } from "express";
 
 class ProdutoController extends Produto {
@@ -66,6 +68,23 @@ class ProdutoController extends Produto {
         } catch (error) {
             console.error(`Erro ao atualizar produto: ${error}`);
             return res.status(500).json({ mensagem: "Erro ao atualizar produto." });
+        }
+    }
+
+    static async remover(req: Request, res: Response): Promise<Response> {
+        try {
+            const idProduto = Number(req.params.idProduto);
+            if (isNaN(idProduto)) return res.status(400).json({ mensagem: 'ID inválido' });
+            // Verifica se o produto está em itens de venda
+            const r = await database.query('SELECT COUNT(*) AS cnt FROM item_venda WHERE id_produto = $1', [idProduto]);
+            const cnt = Number(r.rows[0]?.cnt ?? 0);
+            if (cnt > 0) return res.status(400).json({ mensagem: 'Não é possível excluir: produto está vinculado a vendas.' });
+
+            const ok = await Produto.removerProduto(idProduto);
+            return ok ? res.status(200).json({ mensagem: 'Produto removido com sucesso.' }) : res.status(400).json({ mensagem: 'Erro ao remover produto.' });
+        } catch (error) {
+            console.error(`Erro ao remover produto: ${error}`);
+            return res.status(500).json({ mensagem: 'Erro ao remover produto.' });
         }
     }
 }

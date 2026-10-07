@@ -60,6 +60,17 @@ export class Pedido {
     }
   }
 
+  static async removerPedido(idVenda: number): Promise<boolean> {
+    try {
+      await database.query('DELETE FROM item_venda WHERE id_venda = $1;', [idVenda]);
+      const result = await database.query('DELETE FROM venda WHERE id_venda = $1 RETURNING id_venda;', [idVenda]);
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error(`Erro ao remover pedido: ${error}`);
+      return false;
+    }
+  }
+
   static async listarPedidos(): Promise<Array<{
     idVenda: number;
     idCliente: number;
